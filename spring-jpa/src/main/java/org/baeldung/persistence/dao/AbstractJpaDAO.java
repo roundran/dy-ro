@@ -8,39 +8,42 @@ import javax.persistence.PersistenceContext;
 
 public abstract class AbstractJpaDAO<T extends Serializable> {
 
-    private Class<T> clazz;
+	private Class<T> clazz;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+	@PersistenceContext
+	private EntityManager entityManager;
 
-    public final void setClazz(final Class<T> clazzToSet) {
-        this.clazz = clazzToSet;
-    }
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+	public final void setClazz(final Class<T> clazzToSet) {
+		this.clazz = clazzToSet;
+	}
 
-    public T findOne(final long id) {
-        return entityManager.find(clazz, id);
-    }
+	public T findOne(final long id) {
+		return entityManager.find(clazz, id);
+	}
 
-    @SuppressWarnings("unchecked")
-    public List<T> findAll() {
-        return entityManager.createQuery("from " + clazz.getName()).getResultList();
-    }
+	@SuppressWarnings("unchecked")
+	public List<T> findAll() {
+		return entityManager.createQuery("from " + clazz.getName()).getResultList();
+	}
 
-    public void create(final T entity) {
-        entityManager.persist(entity);
-    }
+	public void create(final T entity) {
+		entityManager.persist(entity);
+	}
 
-    public T update(final T entity) {
-        return entityManager.merge(entity);
-    }
+	public T update(final T entity) {
+		return entityManager.merge(entity);
+	}
 
-    public void delete(final T entity) {
-        entityManager.remove(entity);
-    }
+	public void delete(final T entity) {
+		entityManager.remove(entity);
+	}
 
-    public void deleteById(final long entityId) {
-        final T entity = findOne(entityId);
-        delete(entity);
-    }
+	public void deleteById(final long entityId) {
+		final T entity = findOne(entityId);
+		delete(entity);
+	}
 
 }

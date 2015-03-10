@@ -1,0 +1,26 @@
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd" version="1.0">
+   
+   <persistence-unit name="punit" transaction-type="RESOURCE_LOCAL" >
+   
+   <provider>org.hibernate.ejb.HibernatePersistence</provider>
+  
+ 
+   <class>org.baeldung.persistence.model.Foo</class>
+    <class>org.baeldung.persistence.model.Bar</class>
+   <class>org.baeldung.persistence.model.User</class>
+    <class>org.baeldung.persistence.model.Period</class>
+    <class>org.baeldung.persistence.model.Task</class>
+    
+    
+     <properties> 
+      <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+      <property name="hibernate.dialect" value="org.springframework.orm.jpa.vendor.HibernateJpaDialect"/> 
+      <property name="hibernate.show_sql" value="true"></property>
+      
+     </properties>
+   
+   
+   </persistence-unit>
+</persistence>

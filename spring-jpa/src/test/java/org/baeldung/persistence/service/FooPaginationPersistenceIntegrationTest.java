@@ -29,124 +29,124 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 @ContextConfiguration(classes = { PersistenceJPAConfig.class }, loader = AnnotationConfigContextLoader.class)
 public class FooPaginationPersistenceIntegrationTest {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+	@PersistenceContext
+	private EntityManager entityManager;
 
-    @Autowired
-    private FooService fooService;
+	@Autowired
+	private FooService fooService;
 
-    @Before
-    public final void before() {
-        final int minimalNumberOfEntities = 25;
-        if (fooService.findAll().size() <= minimalNumberOfEntities) {
-            for (int i = 0; i < minimalNumberOfEntities; i++) {
-                fooService.create(new Foo(randomAlphabetic(6)));
-            }
-        }
-    }
+	@Before
+	public final void before() {
+		final int minimalNumberOfEntities = 10;
+		if (fooService.findAll().size() <= minimalNumberOfEntities) {
+			for (int i = 0; i < minimalNumberOfEntities; i++) {
+				fooService.create(new Foo(randomAlphabetic(6)));
+			}
+		}
+	}
 
-    // tests
+	// tests
 
-    @Test
-    public final void whenContextIsBootstrapped_thenNoExceptions() {
-        //
-    }
+	@Test
+	public final void whenContextIsBootstrapped_thenNoExceptions() {
+		//
+	}
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public final void givenEntitiesExist_whenRetrievingFirstPage_thenCorrect() {
-        final int pageSize = 10;
+	@SuppressWarnings("unchecked")
+	@Test
+	public final void givenEntitiesExist_whenRetrievingFirstPage_thenCorrect() {
+		final int pageSize = 10;
 
-        final Query query = entityManager.createQuery("From Foo");
-        configurePagination(query, 1, pageSize);
+		final Query query = entityManager.createQuery("From Foo");
+		configurePagination(query, 1, pageSize);
 
-        // When
-        final List<Foo> fooList = query.getResultList();
+		// When
+		final List<Foo> fooList = query.getResultList();
 
-        // Then
-        assertThat(fooList, hasSize(pageSize));
-    }
+		// Then
+		assertThat(fooList, hasSize(pageSize));
+	}
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public final void givenEntitiesExist_whenRetrievingLastPage_thenCorrect() {
-        final int pageSize = 10;
-        final Query queryTotal = entityManager.createQuery("Select count(f.id) from Foo f");
-        final long countResult = (long) queryTotal.getSingleResult();
+	@SuppressWarnings("unchecked")
+	@Test
+	public final void givenEntitiesExist_whenRetrievingLastPage_thenCorrect() {
+		final int pageSize = 10;
+		final Query queryTotal = entityManager.createQuery("Select count(f.id) from Foo f");
+		final long countResult = (Long) queryTotal.getSingleResult();
 
-        final Query query = entityManager.createQuery("Select f from Foo as f order by f.id");
-        final int lastPage = (int) ((countResult / pageSize) + 1);
-        configurePagination(query, lastPage, pageSize);
-        final List<Foo> fooList = query.getResultList();
+		final Query query = entityManager.createQuery("Select f from Foo as f order by f.id");
+		final int lastPage = (int) ((countResult / pageSize) + 1);
+		configurePagination(query, lastPage, pageSize);
+		final List<Foo> fooList = query.getResultList();
 
-        // Then
-        assertThat(fooList, hasSize(lessThan(pageSize + 1)));
-    }
+		// Then
+		assertThat(fooList, hasSize(lessThan(pageSize + 1)));
+	}
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public final void givenEntitiesExist_whenRetrievingPage_thenCorrect() {
-        final int pageSize = 10;
+	@SuppressWarnings("unchecked")
+	@Test
+	public final void givenEntitiesExist_whenRetrievingPage_thenCorrect() {
+		final int pageSize = 10;
 
-        final Query queryIds = entityManager.createQuery("Select f.id from Foo f order by f.lastName");
-        final List<Integer> fooIds = queryIds.getResultList();
+		final Query queryIds = entityManager.createQuery("Select f.id from Foo f order by f.lastName");
+		final List<Integer> fooIds = queryIds.getResultList();
 
-        final Query query = entityManager.createQuery("Select f from Foo e whet f.id in :ids");
-        query.setParameter("ids", fooIds.subList(0, pageSize));
-        final List<Foo> fooList = query.getResultList();
+		final Query query = entityManager.createQuery("Select f from Foo e whet f.id in :ids");
+		query.setParameter("ids", fooIds.subList(0, pageSize));
+		final List<Foo> fooList = query.getResultList();
 
-        // Then
-        assertThat(fooList, hasSize(pageSize));
-    }
+		// Then
+		assertThat(fooList, hasSize(pageSize));
+	}
 
-    @Test
-    public final void givenEntitiesExist_whenRetrievingPageViaCriteria_thenCorrect() {
-        final int pageSize = 10;
-        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Foo> criteriaQuery = criteriaBuilder.createQuery(Foo.class);
-        final Root<Foo> from = criteriaQuery.from(Foo.class);
-        final CriteriaQuery<Foo> select = criteriaQuery.select(from);
-        final TypedQuery<Foo> typedQuery = entityManager.createQuery(select);
-        typedQuery.setFirstResult(0);
-        typedQuery.setMaxResults(pageSize);
-        final List<Foo> fooList = typedQuery.getResultList();
+	@Test
+	public final void givenEntitiesExist_whenRetrievingPageViaCriteria_thenCorrect() {
+		final int pageSize = 10;
+		final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		final CriteriaQuery<Foo> criteriaQuery = criteriaBuilder.createQuery(Foo.class);
+		final Root<Foo> from = criteriaQuery.from(Foo.class);
+		final CriteriaQuery<Foo> select = criteriaQuery.select(from);
+		final TypedQuery<Foo> typedQuery = entityManager.createQuery(select);
+		typedQuery.setFirstResult(0);
+		typedQuery.setMaxResults(pageSize);
+		final List<Foo> fooList = typedQuery.getResultList();
 
-        // Then
-        assertThat(fooList, hasSize(pageSize));
-    }
+		// Then
+		assertThat(fooList, hasSize(pageSize));
+	}
 
-    @Test
-    public final void givenEntitiesExist_whenRetrievingPageViaCriteria_thenNoExceptions() {
-        int pageNumber = 1;
-        final int pageSize = 10;
-        final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+	@Test
+	public final void givenEntitiesExist_whenRetrievingPageViaCriteria_thenNoExceptions() {
+		int pageNumber = 1;
+		final int pageSize = 10;
+		final CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 
-        final CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
-        countQuery.select(criteriaBuilder.count(countQuery.from(Foo.class)));
-        final Long count = entityManager.createQuery(countQuery).getSingleResult();
+		final CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+		countQuery.select(criteriaBuilder.count(countQuery.from(Foo.class)));
+		final Long count = entityManager.createQuery(countQuery).getSingleResult();
 
-        final CriteriaQuery<Foo> criteriaQuery = criteriaBuilder.createQuery(Foo.class);
-        final Root<Foo> from = criteriaQuery.from(Foo.class);
-        final CriteriaQuery<Foo> select = criteriaQuery.select(from);
+		final CriteriaQuery<Foo> criteriaQuery = criteriaBuilder.createQuery(Foo.class);
+		final Root<Foo> from = criteriaQuery.from(Foo.class);
+		final CriteriaQuery<Foo> select = criteriaQuery.select(from);
 
-        final TypedQuery<Foo> typedQuery = entityManager.createQuery(select);
-        while (pageNumber < count.intValue()) {
-            typedQuery.setFirstResult(pageNumber - 1);
-            typedQuery.setMaxResults(pageSize);
-            System.out.println("Current page: " + typedQuery.getResultList());
-            pageNumber += pageSize;
-        }
-    }
+		final TypedQuery<Foo> typedQuery = entityManager.createQuery(select);
+		while (pageNumber < count.intValue()) {
+			typedQuery.setFirstResult(pageNumber - 1);
+			typedQuery.setMaxResults(pageSize);
+			System.out.println("Current page: " + typedQuery.getResultList());
+			pageNumber += pageSize;
+		}
+	}
 
-    // UTIL
+	// UTIL
 
-    final int determineLastPage(final int pageSize, final long countResult) {
-        return (int) (countResult / pageSize) + 1;
-    }
+	final int determineLastPage(final int pageSize, final long countResult) {
+		return (int) (countResult / pageSize) + 1;
+	}
 
-    final void configurePagination(final Query query, final int pageNumber, final int pageSize) {
-        query.setFirstResult((pageNumber - 1) * pageSize);
-        query.setMaxResults(pageSize);
-    }
+	final void configurePagination(final Query query, final int pageNumber, final int pageSize) {
+		query.setFirstResult((pageNumber - 1) * pageSize);
+		query.setMaxResults(pageSize);
+	}
 
 }

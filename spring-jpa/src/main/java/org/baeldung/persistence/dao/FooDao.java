@@ -6,12 +6,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class FooDao extends AbstractJpaDAO<Foo> implements IFooDao {
 
-    public FooDao() {
-        super();
+	public FooDao() {
+		super();
 
-        setClazz(Foo.class);
-    }
+		setClazz(Foo.class);
+	}
 
-    // API
+	// API
 
 }
